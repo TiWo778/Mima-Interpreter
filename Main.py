@@ -1,2 +1,2 @@
 import model
-import "user-interface"
+import ui
