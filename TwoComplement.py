@@ -25,3 +25,12 @@ class TwoComplement:
         
         else: 
             raise Exception
+
+    def invert(self):
+        inverted = ""
+        for i in self.value:
+            if i == "0":
+                inverted += "1"
+            elif i == "1":
+                inverted += "0"
+        return inverted

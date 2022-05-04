@@ -1,4 +1,4 @@
-from TwoComplement import TwoComplement
+import TwoComplement
 
 def defineStorageSize(count: int):
         storage = []
@@ -9,7 +9,7 @@ def defineStorageSize(count: int):
 class MIMA:
     def __init__(self, storageSize: int, bits: int):
         self.storage = defineStorageSize(storageSize)
-        self.akku = 0
+        self.akku = "0"
         self.bits = bits
 
 # Basic functionality
@@ -18,6 +18,7 @@ class MIMA:
         for i in storage:
             if i[0] == adress:  
                 return storage.indexOf(i)
+        return -1
 
     def defineStorageName(self, adress, name: str):
         index = findByAdress(adress)
@@ -27,6 +28,15 @@ class MIMA:
         value = TwoComplement(self.bits, value)
         index = findByAdress(adress)
         self.storage[index][1] = value
+
+    def invert(self, value):
+        inverted = ""
+        for i in value:
+            if i == "0":
+                inverted += "1"
+            elif i == "1":
+                inverted += "0"
+        return inverted
 
     def addBinary(self, value: str):
         toAdd = self.akku
@@ -80,15 +90,37 @@ class MIMA:
             
             for i in self.code:
                 i = self.code.split(" ")
-            
-            #TODO CODE INTERPRETATION
+
+                if i[0] == "ADD" and findByAdress(i[1]) != -1:
+                    self.ADD(i[1])
+                elif i[0] == "LDC":
+                    self.LOADCONSTANT(i[1])
+                elif i[0] == "LDV":
+                    self.LOADVALUE(i[1])
+                elif i[0] == "STV":
+                    self.STOREVALUE(i[1])
+                elif i[0] == "NOT":
+                    self.INVERT()
 
 # Commands
     def ADD(self, adress):
         index = findByAdress(adress)
         addBinary(storage[index][1].value)
     
-    def ADDCONST(self, const: str):
-        addBinary(const)
+    def LOADCONSTANT(self, const: str):
+        self.akku = TwoComplement(self.bits, const)
 
-    #TODO REST OF COMMANDS
+    def LOADVALUE(self, adress):
+        if findByAdress(adress) != -1:
+            self.akku = self.storage[findByAdress(adress)][1].value
+        else:
+            raise InvalidAdress #TODO
+
+    def STOREVALUE(self, adress):
+        if findByAdress(adress) != -1:
+            self.storage[findByAdress(adress)][1].value = self.akku
+        else:
+            self.defineStorageName(adress, name)#TODO
+
+    def INVERT(self):
+        self.akku = self.invert(self.akku)
