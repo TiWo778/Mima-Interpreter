@@ -1,19 +1,38 @@
 import TwoComplement
 
+################################
+#Exceptions
+################################
+
+class InvalidSyntax(Exception):
+    def __init__(self, line):
+        self.message = f"Invalid Syntax in line {line}"
+    
+class InvalidAddress(Exception):
+    def __init__(self, address):
+        self.message = f"The address {address} does not exist"
+
+
 def defineStorageSize(count: int):
         storage = []
         for i in range(count):
             storage.append((i, 0))
         return storage
 
+################################
+#MIMA Interpreter Class
+################################
 class MIMA:
     def __init__(self, storageSize: int, bits: int):
         self.storage = defineStorageSize(storageSize)
         self.akku = "0"
         self.bits = bits
+        self.tokens = []
+        self.line = 0
 
-# Basic functionality
-
+################################
+#Basic functions
+################################
     def findByAdress(self, adress):
         for i in storage:
             if i[0] == adress:  
@@ -81,28 +100,33 @@ class MIMA:
 
         self.akku = newAkku
 
-    def readFile(self, filePath):
+    def compile(self, filePath):
         if not filepath.endswith(".mima"):
             raise InvalidFile
         else:
             with open(filePath) as f:
                 self.code = f.readlines()
             
+            line = 0
+
             for i in self.code:
+                line += 1
                 i = self.code.split(" ")
 
-                if i[0] == "ADD" and findByAdress(i[1]) != -1:
-                    self.ADD(i[1])
-                elif i[0] == "LDC":
-                    self.LOADCONSTANT(i[1])
-                elif i[0] == "LDV":
-                    self.LOADVALUE(i[1])
-                elif i[0] == "STV":
-                    self.STOREVALUE(i[1])
-                elif i[0] == "NOT":
-                    self.INVERT()
+            if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and findByAdress(i[1]) != -1:
+                self.tokens.append((i[0], i[1]))
+            elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and findByAdress(i[1]) == -1:
+                raise InvalidAdress(i[1])
+            elif i[0] == ["LDC", "STV", "JMN", "JMP"] and len(i) == 2:
+               self.tokens.append((i[0], i[1])) 
+            elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
+               self.tokens.append(i[0])
+            else:
+                raise InvalidSyntax(line)
 
-# Commands
+################################
+#Commands
+################################
     def ADD(self, adress):
         index = findByAdress(adress)
         addBinary(storage[index][1].value)
@@ -114,7 +138,7 @@ class MIMA:
         if findByAdress(adress) != -1:
             self.akku = self.storage[findByAdress(adress)][1].value
         else:
-            raise InvalidAdress #TODO
+            raise InvalidAdress(adress)
 
     def STOREVALUE(self, adress):
         if findByAdress(adress) != -1:
@@ -122,5 +146,43 @@ class MIMA:
         else:
             self.defineStorageName(adress, name)#TODO
 
+    def EQUAL(self, adress):
+        if (self.akku == self.storage[findByAdress(adress)][1].value):
+            self.akku = "1"
+        else:
+            self.akku = "0"
+
+    def AND(self, adress):
+        if (self.akku == "1" and self.storage[findByAdress(adress)][1].value == "1"):
+            self.akku = "1"
+        else:
+            self.akku = "0"
+
+    def OR(self, adress):
+        if (self.akku == "1" or self.storage[findByAdress(adress)][1].value == "1"):
+            self.akku = "1"
+        else:
+            self.akku = "0"
+
+    def XOR(self, adress):
+        if (self.akku != self.storage[findByAdress(adress)][1].value) and (self.akku == "1" or self.storage[findByAdress(adress)][1].value == "1"):
+            self.akku = "1"
+        else:
+            self.akku = "0"
+    
+    def JUMP(self, line, conditional=False):
+        if conditional:
+            if self.akku == "1":
+                self.line = line - 1
+        else:
+            self.line = line - 1
+
     def INVERT(self):
         self.akku = self.invert(self.akku)
+    
+    def ROTATRIGHT(self):
+        self.akku = self.akku[-1:] + self.akku[:-1]
+
+    def HALT(self):
+        #TODO Ausgabe aller Speicheradressen und akku
+        exit()
