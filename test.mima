@@ -1,6 +1,0 @@
-LDV adr1
-NOT
-STV adr1
-LDC 1
-ADD adr1
-HALT

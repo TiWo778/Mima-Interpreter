@@ -73,6 +73,9 @@ class MIMA:
         index = self.findByAdress(adress)
         self.storage[index][1] = value
 
+    def addNewStorageCell(self, name: str, value: str):
+        self.storage.append([name, str])
+
     def invert(self, value):
         inverted = ""
         for i in value:
@@ -138,11 +141,11 @@ class MIMA:
                 line += 1
                 i = codeSegment.strip("\n").split(" ")
 
-                if i[0] in ["ADD", "STV", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and self.findByAdress(i[1]) != -1:
+                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and self.findByAdress(i[1]) != -1:
                     self.tokens.append((i[0], i[1]))
-                elif i[0] in ["ADD", "STV", "LDV", "AND", "OR", "XOR", "EQL"] and self.findByAdress(i[1]) == -1:
+                elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and self.findByAdress(i[1]) == -1:
                     raise InvalidAdress(i[1])
-                elif i[0] in ["LDC", "JMN", "JMP"] and len(i) == 2:
+                elif i[0] in ["LDC", "STV", "JMN", "JMP"] and len(i) == 2:
                     self.tokens.append((i[0], i[1])) 
                 elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
                     self.tokens.append((i[0],))
@@ -150,13 +153,14 @@ class MIMA:
                     raise InvalidSyntax(line)
 
     def run(self):
-        for i in self.tokens:
-            if len(i) == 1:
-                command = getattr(mima, i[0])
+        while self.line < len(self.tokens):
+            if len(self.tokens[self.line]) == 1:
+                command = getattr(mima, self.tokens[self.line][0])
                 command()
-            elif len(i) == 2:
-                command = getattr(mima, i[0])
-                command(i[1])
+            elif len(self.tokens[self.line]) == 2:
+                command = getattr(mima, self.tokens[self.line][0])
+                command(self.tokens[self.line][1])
+            self.line += 1
 
 
 ################################
@@ -178,7 +182,7 @@ class MIMA:
         if self.findByAdress(adress) != -1:
             self.writeToStorage(adress, self.akku)
         else:
-            self.defineStorageName(adress, name)#TODO
+            self.addNewStorageCell(adress, self.akku)
 
     def EQL(self, adress):
         if (self.akku == self.storage[self.findByAdress(adress)][1].value):
@@ -205,11 +209,11 @@ class MIMA:
             self.akku = "0"
     
     def JMP(self, line):
-        self.line = line - 1
+        self.line = line - 2
 
     def JMN(self, line):
         if self.akku == "1":
-            self.line = line - 1
+            self.line = line - 2
 
     def NOT(self):
         self.akku = self.invert(self.akku)

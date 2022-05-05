@@ -1,0 +1,8 @@
+LDV adr1
+NOT
+STV adr1
+LDC 1
+ADD adr1
+HALT
+
+This is an example Program that inverts the Number saved at adr1 (6 -> -6 or 0110 -> 1010)
