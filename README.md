@@ -25,4 +25,8 @@ Simple Interpreter for the Minimal Machine
 ---
 ## How to execute your code
 1. Run the Mima.py file with "python *PathToFile*/Mima.py
-2.  
+2. Enter the Path of your .mima file, when prompted
+3. Enter the number of Bits you want to use for each number, when prompted
+4. Enter the initial size of the storage (the amount of values already prensent in the storage when your program starts), when prompted
+5. Enter the initial Values and names of these already occupied Storage cells in Format (*StorageCellName*:*value*);(*StorageCellName*:*value*);... (you have to specify the exact amount of cells you earlier entered, to be present), when prompted
+6. Your output will be generated, you will be given the values at every occupied Storage cell as well as the Value in the Akkumulator
