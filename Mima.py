@@ -149,6 +149,8 @@ class MIMA:
                     self.tokens.append((i[0], i[1])) 
                 elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
                     self.tokens.append((i[0],))
+                    if i[0] == "HALT":
+                        break
                 else:
                     raise InvalidSyntax(line)
 
