@@ -12,7 +12,7 @@ Simple Interpreter for the Minimal Machine
 * **LDC** *x* | loads the Number x into the Akkumulator
 * **LDV** *a* | loads the Value at the adress a into the Akkumulator
 * **STV** *a* | stores the Value in the Akkumulator at the adress a
-* **ADD** *a* | adds the Valuestored at the adress a to the Value in the Akkumulator
+* **ADD** *a* | adds the Value stored at the adress a to the Value in the Akkumulator
 * **EQL** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator equals the Value at adress a, and 0 if not
 * **AND** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are smaller than 0, and 0 if not
 * **OR**  *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are smaller than 0, and 0 if not
