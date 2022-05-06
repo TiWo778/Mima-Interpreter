@@ -6,8 +6,8 @@ class InvalidSyntax(Exception):
         self.message = f"Invalid Syntax in line {line}"
     
 class InvalidAdress(Exception):
-    def __init__(self, address):
-        self.message = f"The address *{address}* does not exist"
+    def __init__(self, address, line):
+        self.message = f"The address *{address}* does not exist (line: {line})"
     
 class InvalidNumber(Exception):
     def __init__(self, number):
@@ -74,7 +74,7 @@ class MIMA:
         self.storage[index][1] = value
 
     def addNewStorageCell(self, name: str, value: str):
-        self.storage.append([name, str])
+        self.storage.append([name, TwoComplement(self.bits, value)])
 
     def invert(self, value):
         inverted = ""
@@ -136,17 +136,20 @@ class MIMA:
                 self.code = f.readlines()
             
             line = 0
+            runtimeStorage = []
 
             for codeSegment in self.code:
                 line += 1
                 i = codeSegment.strip("\n").split(" ")
 
-                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and self.findByAdress(i[1]) != -1:
+                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and (self.findByAdress(i[1]) != -1 or i[1] in runtimeStorage):
                     self.tokens.append((i[0], i[1]))
-                elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and self.findByAdress(i[1]) == -1:
-                    raise InvalidAdress(i[1])
+                elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2:
+                    raise InvalidAdress(i[1], line)
                 elif i[0] in ["LDC", "STV", "JMN", "JMP"] and len(i) == 2:
                     self.tokens.append((i[0], i[1])) 
+                    if i[0] == "STV":
+                        runtimeStorage.append(i[1])
                 elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
                     self.tokens.append((i[0],))
                     if i[0] == "HALT":
@@ -178,7 +181,7 @@ class MIMA:
         if self.findByAdress(adress) != -1:
             self.akku = self.storage[self.findByAdress(adress)][1].value
         else:
-            raise InvalidAdress(adress)
+            raise InvalidAdress(adress, line)
 
     def STV(self, adress):
         if self.findByAdress(adress) != -1:
@@ -188,7 +191,7 @@ class MIMA:
 
     def EQL(self, adress):
         if (self.akku == self.storage[self.findByAdress(adress)][1].value):
-            self.akku = "1"
+            self.akku = ("1" * self.bits)
         else:
             self.akku = "0"
 
@@ -211,11 +214,11 @@ class MIMA:
             self.akku = "0"
     
     def JMP(self, line):
-        self.line = line - 2
+        self.line = int(line) - 2
 
     def JMN(self, line):
-        if self.akku == "1":
-            self.line = line - 2
+        if self.akku[0] == "1":
+            self.line = int(line) - 2
 
     def NOT(self):
         self.akku = self.invert(self.akku)
@@ -236,25 +239,27 @@ if __name__ == "__main__":
     filepath = input("Please specify a .mima file to run:\n")
     bits = int(input("Please specify the number of bits per storage cell:\n"))
     storageSize = int(input("Please specify the initial size of the storage (the number of already present storage cells):\n"))
-    predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
-
-    while storageSize != len(predefindedStorage.split(";")):
-        storageSize = input("Please specify the initial size of the storage (the number of already present storage cells):\n")
-        predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
-    
     mima = MIMA(storageSize, bits)
 
-    predefinedList = predefindedStorage.split(";")
+    if storageSize > 0:
+        predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
 
-    for i in range(storageSize):
-        adressAti = predefinedList[i].split(":")[0].strip("(")
-        valueAti = predefinedList[i].split(":")[1].strip(")")
-        mima.defineStorageName(i, adressAti)
-        mima.writeToStorage(adressAti, valueAti)
+        while storageSize != len(predefindedStorage.split(";")):
+            storageSize = input("Please specify the initial size of the storage (the number of already present storage cells):\n")
+            predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
+
+        predefinedList = predefindedStorage.split(";")    
+
+        for i in range(storageSize):
+            adressAti = predefinedList[i].split(":")[0].strip("(")
+            valueAti = predefinedList[i].split(":")[1].strip(")")
+            mima.defineStorageName(i, adressAti)
+            mima.writeToStorage(adressAti, valueAti)
 
     try:
         mima.compile(filepath)
     except Exception as e:
         print(e.message)
+        exit()
 
     mima.run()
