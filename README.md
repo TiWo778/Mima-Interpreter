@@ -14,9 +14,9 @@ Simple Interpreter for the Minimal Machine
 * **STV** *a* | stores the Value in the Akkumulator at the adress a
 * **ADD** *a* | adds the Value stored at the adress a to the Value in the Akkumulator
 * **EQL** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator equals the Value at adress a, and 0 if not
-* **AND** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are smaller than 0, and 0 if not
-* **OR**  *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are smaller than 0, and 0 if not
-* **XOR** *a* | writes the Two's Complement Value of -1 into the Akkumulator if either the Value in the Akkumulator, or the Value at adress a are smaller than 0, and 0 if not
+* **AND** *a* | writes 1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are 1, and 0 if not
+* **OR**  *a* | writes 1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are 1, and 0 if not
+* **XOR** *a* | writes 1 into the Akkumulator if either the Value in the Akkumulator, or the Value at adress a, but not both, are 1, and 0 if not
 * **JMN** *y* | continues the code execution at the line y, if the Value in the Akkumulator is negative
 * **JMP** *y* | continues the code execution at the line y, regardless of the Value in the Akkumulator
 * **NOT** | negates the Two's Complement Value in the Akkumulator (every 1 turns into a 0 and vice versa)
