@@ -12,11 +12,11 @@ Simple Interpreter for the Minimal Machine
 * **LDC** *x* | loads the Number x into the Akkumulator
 * **LDV** *a* | loads the Value at the adress a into the Akkumulator
 * **STV** *a* | stores the Value in the Akkumulator at the adress a
-* **ADD** *a* | adds the Valuestored at the adress a to the Value in the Akkumulator
+* **ADD** *a* | adds the Value stored at the adress a to the Value in the Akkumulator
 * **EQL** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator equals the Value at adress a, and 0 if not
-* **AND** *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are smaller than 0, and 0 if not
-* **OR**  *a* | writes the Two's Complement Value of -1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are smaller than 0, and 0 if not
-* **XOR** *a* | writes the Two's Complement Value of -1 into the Akkumulator if either the Value in the Akkumulator, or the Value at adress a are smaller than 0, and 0 if not
+* **AND** *a* | writes 1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are 1, and 0 if not
+* **OR**  *a* | writes 1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are 1, and 0 if not
+* **XOR** *a* | writes 1 into the Akkumulator if either the Value in the Akkumulator, or the Value at adress a, but not both, are 1, and 0 if not
 * **JMN** *y* | continues the code execution at the line y, if the Value in the Akkumulator is negative
 * **JMP** *y* | continues the code execution at the line y, regardless of the Value in the Akkumulator
 * **NOT** | negates the Two's Complement Value in the Akkumulator (every 1 turns into a 0 and vice versa)
@@ -28,5 +28,5 @@ Simple Interpreter for the Minimal Machine
 2. Enter the Path of your .mima file, when prompted
 3. Enter the number of Bits you want to use for each number, when prompted
 4. Enter the initial size of the storage (the amount of values already prensent in the storage when your program starts), when prompted
-5. Enter the initial Values and names of these already occupied Storage cells in Format (*StorageCellName*:*value*);(*StorageCellName*:*value*);... (you have to specify the exact amount of cells you earlier entered, to be present), when prompted
+5. Enter the initial Values and names of these already occupied Storage cells in Format (*StorageCellName*:*value*);(*StorageCellName*:*value*);... (you have to specify the exact amount of cells you earlier specified to be present), when prompted
 6. Your output will be generated, you will be given the values at every occupied Storage cell as well as the Value in the Akkumulator
