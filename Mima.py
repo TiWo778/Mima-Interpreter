@@ -191,27 +191,30 @@ class MIMA:
 
     def EQL(self, adress):
         if (self.akku == self.storage[self.findByAdress(adress)][1].value):
-            self.akku = ("1" * self.bits)
+            self.akku = "1" * self.bits
         else:
-            self.akku = "0"
+            self.akku = "0" * self.bits
 
     def AND(self, adress):
-        if (self.akku == "1" and self.storage[self.findByAdress(adress)][1].value == "1"):
-            self.akku = "1"
+        desiredValue = ("0" * (self.bits - 1)) + "1" 
+        if (self.akku == desiredValue and self.storage[self.findByAdress(adress)][1].value == self.akku):
+            self.akku = desiredValue
         else:
-            self.akku = "0"
+            self.akku = "0" * self.bits
 
     def OR(self, adress):
-        if (self.akku == "1" or self.storage[self.findByAdress(adress)][1].value == "1"):
-            self.akku = "1"
+        desiredValue = ("0" * (self.bits - 1)) + "1" 
+        if (self.akku == desiredValue or self.storage[self.findByAdress(adress)][1].value == desiredValue):
+            self.akku = desiredValue
         else:
-            self.akku = "0"
+            self.akku = "0" * self.bits
 
     def XOR(self, adress):
-        if (self.akku != self.storage[self.findByAdress(adress)][1].value) and (self.akku == "1" or self.storage[self.findByAdress(adress)][1].value == "1"):
-            self.akku = "1"
+        desiredValue = ("0" * (self.bits - 1)) + "1"
+        if (self.akku != self.storage[self.findByAdress(adress)][1].value) and (self.akku == desiredValue or self.storage[self.findByAdress(adress)][1].value == desiredValue):
+            self.akku = desiredValue
         else:
-            self.akku = "0"
+            self.akku = "0" * self.bits
     
     def JMP(self, line):
         self.line = int(line) - 2
