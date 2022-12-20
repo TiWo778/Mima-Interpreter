@@ -1,3 +1,6 @@
+import click
+import ast
+
 ################################
 #Exceptions
 ################################
@@ -236,22 +239,32 @@ class MIMA:
         exit()
 
 ################################
+#allow multiple options
+################################
+class CustomOption(click.Option):
+    def type_cast_value(self, ctx, value):
+        try:
+            return ast.literal_eval(value)
+        except:
+            raise click.BadParameter(value)
+
+################################
 #Run Program
 ################################
-if __name__ == "__main__":
-    filepath = input("Please specify a .mima file to run:\n")
-    bits = int(input("Please specify the number of bits per storage cell:\n"))
-    storageSize = int(input("Please specify the initial size of the storage (the number of already present storage cells):\n"))
-    mima = MIMA(storageSize, bits)
+@click.command() #TODO: fix Invalid value fo rpredefined Error (maybe move predefined storage into .mima file?)
+@click.argument("path")
+@click.option("--bits", cls=CustomOption, type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
+@click.option("--initialSize", cls=CustomOption, type=int, default=0, show_default=True, help="The amount of already present values when your program starts executing.")
+@click.option("--predefined", cls=CustomOption, default="", help="The path to the file containing predefinded storage, seperated by newlines in format: (*name of cell*:*value of cell*).")
+def main(path, bits, initialSize, predefined):
+    mima = MIMA(initialSize, bits)
 
-    if storageSize > 0:
-        predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
+    if initialSize > 0:
+        predefinedList = predefinded.split("\n")    
 
-        while storageSize != len(predefindedStorage.split(";")):
-            storageSize = input("Please specify the initial size of the storage (the number of already present storage cells):\n")
-            predefindedStorage = input("Please specify the predefinded storage seperated by semicolons in format: (*name of cell*:*value of cell*)):\n")
-
-        predefinedList = predefindedStorage.split(";")    
+        if len(predefindedList) != initialSize:
+            print(f"The specified amount of occupied storage cells ({initialSize}) is not equal to the amount of specified cells ({len(predefinedList)})")
+            exit()
 
         for i in range(storageSize):
             adressAti = predefinedList[i].split(":")[0].strip("(")
@@ -260,9 +273,12 @@ if __name__ == "__main__":
             mima.writeToStorage(adressAti, valueAti)
 
     try:
-        mima.compile(filepath)
+        mima.compile(path)
     except Exception as e:
-        print(e.message)
+        print(str(e))
         exit()
 
     mima.run()
+
+if __name__ == "__main__":
+    main()
