@@ -26,7 +26,6 @@ class TwoComplement:
         self.value = self.convert(value)
 
     def convert(self, num):
-        firstBit = "0"
 
         if (len(num) > self.length):
             raise InvalidNumber(num)
