@@ -8,6 +8,7 @@ Simple Interpreter for the Minimal Machine
 * Every program needs to end with **HALT**
 * Text may be added after the "HALT" command
 * All numbers used inside of the Program must be in Two's Complement format ([Wikipedia](https://en.wikipedia.org/wiki/Two%27s_complement))
+* If a provided number is not in x-Bit format, it will be filled with leading 0's until it is (LDC 10 in 4-Bit format will automatically be converted to LDC 0010)
 ### How to define storage cells that already have a value
 * You can define storage cells anywhere in your file (with the exception of between the *code:* Keyword and the **HALT** command)
 * You define storage cells in format: *(adress:value)* , where *adress* will be the name of the cell (any String not containing whitespaces) and *value* will be the stored value (In Two's Complement format)
@@ -32,8 +33,20 @@ Simple Interpreter for the Minimal Machine
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
 ---
 ## How to execute your code
+* python 3.x has to be installed (see [Guide](https://realpython.com/installing-python/))
+* click module needs to be installed:
+    ```
+    pip install click 
+    ```
+
 The command:
 
 python Mima.py *(Path to .mima file)* --bits *(number of bits you will use for your Numbers)* 
 
-will run the specified .mima file (assuming you run the command from the folder that Mima.py is saved in)
+will run the specified .mima file (assuming you run the command from the folder that Mima.py is saved in).
+
+For example:
+```
+python Mima.py ./myProgram.mima --bits 16
+```
+will will run *myProgram.mima*, which is stored in the same directory as *Mima.py*, interpreting all numbers as 16-Bit Two's Complement.
