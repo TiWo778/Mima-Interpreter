@@ -39,6 +39,10 @@ class TwoComplement:
             num = "0" * (self.length - len(num)) + num
 
         return num
+
+################################
+#Other util methods
+################################
         
 #The Method defines the initial Storage size and creates placeholder cells
 def defineStorageSize(count: int):
@@ -46,6 +50,37 @@ def defineStorageSize(count: int):
         for i in range(count):
             storage.append([i, 0])
         return storage
+
+#The Method reads a files storage/code section, depending on the bool that is passed and returns the lines as array
+def readFile(path: str, isCode: bool):
+    if not path.endswith(".mima"):
+        raise InvalidFile()
+
+    result = []
+
+    if not isCode:
+
+        with open(path) as file:
+            lines = file.readlines()
+
+            for i in range(len(lines)):
+                if (i > 0) and (lines[i-1].strip("\n") == "storage:"):
+                    for line in lines[i:len(lines)]:
+                        if line.strip("\n") == ":endStorage":
+                            break
+                        result.append(line.strip("\n"))
+                    break
+    else:
+        with open(path) as file:
+            lines = file.readlines()
+
+            for i in range(len(lines)):
+                if (i > 0) and (lines[i-1].strip("\n") == "code:"):
+                    for line in lines[i:len(lines)]:
+                        result.append(line.strip("\n"))
+                    break
+
+    return result        
 
 ################################
 #MIMA Interpreter Class
@@ -131,13 +166,12 @@ class MIMA:
 ################################
 #Code Interpretation
 ################################
-    def compile(self, filePath):
-        if not filepath.endswith(".mima"):
+    def compile(self, path):
+        if not path.endswith(".mima"):
             raise InvalidFile
         else:
-            with open(filePath) as f:
-                self.code = f.readlines()
-            
+            self.code = readFile(path, True)    
+
             line = 0
             runtimeStorage = []
 
@@ -163,10 +197,10 @@ class MIMA:
     def run(self):
         while self.line < len(self.tokens):
             if len(self.tokens[self.line]) == 1:
-                command = getattr(mima, self.tokens[self.line][0])
+                command = getattr(self, self.tokens[self.line][0])
                 command()
             elif len(self.tokens[self.line]) == 2:
-                command = getattr(mima, self.tokens[self.line][0])
+                command = getattr(self, self.tokens[self.line][0])
                 command(self.tokens[self.line][1])
             self.line += 1
 
@@ -239,38 +273,22 @@ class MIMA:
         exit()
 
 ################################
-#allow multiple options
-################################
-class CustomOption(click.Option):
-    def type_cast_value(self, ctx, value):
-        try:
-            return ast.literal_eval(value)
-        except:
-            raise click.BadParameter(value)
-
-################################
 #Run Program
 ################################
 @click.command() #TODO: fix Invalid value fo rpredefined Error (maybe move predefined storage into .mima file?)
 @click.argument("path")
-@click.option("--bits", cls=CustomOption, type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
-@click.option("--initialSize", cls=CustomOption, type=int, default=0, show_default=True, help="The amount of already present values when your program starts executing.")
-@click.option("--predefined", cls=CustomOption, default="", help="The path to the file containing predefinded storage, seperated by newlines in format: (*name of cell*:*value of cell*).")
-def main(path, bits, initialSize, predefined):
+@click.option("--bits", type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
+def main(path, bits):
+    predefined = readFile(path, False)
+    initialSize = len(predefined)
+
     mima = MIMA(initialSize, bits)
-
-    if initialSize > 0:
-        predefinedList = predefinded.split("\n")    
-
-        if len(predefindedList) != initialSize:
-            print(f"The specified amount of occupied storage cells ({initialSize}) is not equal to the amount of specified cells ({len(predefinedList)})")
-            exit()
-
-        for i in range(storageSize):
-            adressAti = predefinedList[i].split(":")[0].strip("(")
-            valueAti = predefinedList[i].split(":")[1].strip(")")
-            mima.defineStorageName(i, adressAti)
-            mima.writeToStorage(adressAti, valueAti)
+   
+    for i in range(initialSize):
+           adressAti = predefined[i].split(":")[0].strip("(")
+           valueAti = predefined[i].split(":")[1].strip(")")
+           mima.defineStorageName(i, adressAti)
+           mima.writeToStorage(adressAti, valueAti)
 
     try:
         mima.compile(path)
