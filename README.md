@@ -4,9 +4,17 @@ Simple Interpreter for the Minimal Machine
 ## How to write a Program
 * The entire code needs to be written in a text-file, which must have the extension ".mima"
 * Every command must be written in a new line, followed by its parameter (if necessary). The two have to be seperated by a whitespace.
-* There must not be any other Text in the same line as a command or preceding the start of the Program
+* All code under the *code:* keyword will be executed
+* Every program needs to end with **HALT**
 * Text may be added after the "HALT" command
-* All numbers used inside of the Program must be in Two's Complement Format ([Wikipedia](https://en.wikipedia.org/wiki/Two%27s_complement))
+* All numbers used inside of the Program must be in Two's Complement format ([Wikipedia](https://en.wikipedia.org/wiki/Two%27s_complement))
+### How to define storage cells that already have a value
+* You can define storage cells anywhere in your file (with the exception of between the *code:* Keyword and the **HALT** command)
+* You define storage cells in format: *(adress:value)* , where *adress* will be the name of the cell (any String not containing whitespaces) and *value* will be the stored value (In Two's Complement format)
+* You dont have to define all the storage you will need, if you try to store a value at a non-existent cell using **STV** *adress*, a cell with name *adress* will be created
+* You have to to write all storage cells directly after the *storage:* keyword and put the *:endStorage* keyword directly under your storage cells 
+
+### <div align="center">(See example.mima for demonstration)</div>
 ---
 ## Overview of valid Commands
 * **LDC** *x* | loads the Number x into the Akkumulator
@@ -20,13 +28,12 @@ Simple Interpreter for the Minimal Machine
 * **JMN** *y* | continues the code execution at the line y, if the Value in the Akkumulator is negative
 * **JMP** *y* | continues the code execution at the line y, regardless of the Value in the Akkumulator
 * **NOT** | negates the Two's Complement Value in the Akkumulator (every 1 turns into a 0 and vice versa)
-* **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right (10010 --> 01001)
+* **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right, filling with 0's (10011 --> 01001)
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
 ---
 ## How to execute your code
-1. Run the Mima.py file with "python *PathToFile*/Mima.py
-2. Enter the Path of your .mima file, when prompted
-3. Enter the number of Bits you want to use for each number, when prompted
-4. Enter the initial size of the storage (the amount of values already prensent in the storage when your program starts), when prompted
-5. Enter the initial Values and names of these already occupied Storage cells in Format (*StorageCellName*:*value*);(*StorageCellName*:*value*);... (you have to specify the exact amount of cells you earlier specified to be present), when prompted
-6. Your output will be generated, you will be given the values at every occupied Storage cell as well as the Value in the Akkumulator
+The command:
+
+python Mima.py *(Path to .mima file)* --bits *(number of bits you will use for your Numbers)* 
+
+will run the specified .mima file (assuming you run the command from the folder that Mima.py is saved in)
