@@ -1,3 +1,8 @@
+storage:
+(adr1:0110)
+:endStorage
+
+code:
 LDV adr1
 NOT
 STV adr1
