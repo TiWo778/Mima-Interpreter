@@ -264,18 +264,20 @@ class MIMA:
         self.akku = self.invert(self.akku)
     
     def RAR(self):
-        self.akku = self.akku[-1:] + self.akku[:-1]
+        self.akku = "0" + self.akku[:-1]
 
     def HALT(self):
+        output = ""
         for i in self.storage:
-            print(str(i[0]) + ": " + str(i[1].value))
-        print("Akku: " + self.akku)    
+            output += (str(i[0]) + ": " + str(i[1].value) + "\n")
+        output += ("Akku: " + self.akku) + "\n" 
+        click.echo(output)   
         exit()
 
 ################################
 #Run Program
 ################################
-@click.command() #TODO: fix Invalid value fo rpredefined Error (maybe move predefined storage into .mima file?)
+@click.command()
 @click.argument("path")
 @click.option("--bits", type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
 def main(path, bits):
