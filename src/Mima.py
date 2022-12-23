@@ -335,14 +335,14 @@ def main(path, d):
     with open(".config", "r") as config:
         lines = config.readlines()
         bits = int(lines[0].strip("\n").split("=")[1])
-        codePath = lines[1].strip("\n").split("=")[1]
+        code_path = lines[1].strip("\n").split("=")[1]
 
-    if codePath == "None":
-        filePath = path
+    if code_path == "None":
+        file_path = "./mimaCode/" + path
     else:
-        filePath = codePath + path
+        file_path = code_path + "/" + path
 
-    predefined = read_file(filePath, False)
+    predefined = read_file(file_path, False)
     initial_size = len(predefined)
 
     mima = MIMA(initial_size, bits)
@@ -354,7 +354,7 @@ def main(path, d):
         mima.write_to_storage(address_ati, value_ati)
 
     try:
-        mima.compile(filePath)
+        mima.compile(file_path)
     except Exception as e:
         print(str(e))
         exit()

@@ -32,6 +32,13 @@ Simple Interpreter for the Minimal Machine
 * **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right, filling with 0's (10011 --> 01001)
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
 ---
+## .config file guide
+* The .config file is used to configure the Interpreter
+* The .config file needs to be in the same directory as the Mima.py file
+* The .config file needs to be named ".config" (basically just don't change the name of the file if you clone this repo)
+* The first line of the .config file specifies the Bit-Length of the Akkumulator and the Storage Cells (The default is 4 as that's the Bit-Length of the example program)
+* The second line of the .config file specifies the folder where the Interpreter will look for the .mima files (The default is None, which means the Interpreter will look in the mimaCode folder in the same directory as the Mima.py file)
+---
 ## How to execute your code
 * python 3.x has to be installed (see [Guide](https://realpython.com/installing-python/))
 * click module needs to be installed:
@@ -41,12 +48,27 @@ Simple Interpreter for the Minimal Machine
 
 The command:
 
-python Mima.py *(Path to .mima file)* --bits *(number of bits you will use for your Numbers)* 
+python Mima.py *(Path to .mima file)* 
 
 will run the specified .mima file (assuming you run the command from the folder that Mima.py is saved in).
 
 For example:
 ```
-python Mima.py ./myProgram.mima --bits 16
+python Mima.py ./myProgram.mima
 ```
 will run *myProgram.mima*, which is stored in the same directory as *Mima.py*, interpreting all numbers as 16-Bit Two's Complement.
+
+
+## How to use the debug mode
+The command:
+
+python Mima.py *(Path to .mima file)* --d
+
+will run the specified file in debug mode.
+In debug mode, your code will be executed line by line, showing you:
+* the line number
+* the executed command (including parameters)
+* the current value in the Akkumulator
+* the current value in the **all** storage cells
+
+#### Note that the shown values are the values *after* the command has been executed.
