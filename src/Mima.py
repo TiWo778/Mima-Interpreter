@@ -1,23 +1,39 @@
 import click
 
+'''
 ################################
-#Exceptions
+# Exceptions
 ################################
+'''
+
+
 class InvalidSyntax(Exception):
     def __init__(self, line):
         self.message = f"Invalid Syntax in line {line}"
-    
-class InvalidAdress(Exception):
+
+
+class InvalidAddress(Exception):
     def __init__(self, address, line):
         self.message = f"The address *{address}* does not exist (line: {line})"
-    
+
+
 class InvalidNumber(Exception):
     def __init__(self, number):
         self.message = f"The number *{number}* is not a valid"
 
+
+class InvalidFile(Exception):
+    def __init__(self, path):
+        self.message = f"The file *{path}* does not exist"
+
+
+'''
 ################################
-#Two Complement System
+# Two Complement System
 ################################
+'''
+
+
 class TwoComplement:
 
     def __init__(self, length, value):
@@ -26,7 +42,7 @@ class TwoComplement:
 
     def convert(self, num):
 
-        if (len(num) > self.length):
+        if len(num) > self.length:
             raise InvalidNumber(num)
 
         for i in num:
@@ -38,31 +54,36 @@ class TwoComplement:
 
         return num
 
-################################
-#Other util methods
-################################
-        
-#The Method defines the initial Storage size and creates placeholder cells
-def defineStorageSize(count: int):
-        storage = []
-        for i in range(count):
-            storage.append([i, 0])
-        return storage
 
-#The Method reads a files storage/code section, depending on the bool that is passed and returns the lines as array
-def readFile(path: str, isCode: bool):
+'''
+################################
+# Other util methods
+################################
+'''
+
+
+# The Method defines the initial Storage size and creates placeholder cells
+def define_storage_size(count: int, bits: int):
+    storage = []
+    for i in range(count):
+        storage.append([str(i), TwoComplement(bits, "0")])
+    return storage
+
+
+# The Method reads a files' storage/code section, depending on the bool that is passed and returns the lines as array
+def read_file(path: str, is_code: bool):
     if not path.endswith(".mima"):
-        raise InvalidFile()
+        raise InvalidFile(path)
 
     result = []
 
-    if not isCode:
+    if not is_code:
 
         with open(path) as file:
             lines = file.readlines()
 
             for i in range(len(lines)):
-                if (i > 0) and (lines[i-1].strip("\n") == "storage:"):
+                if (i > 0) and (lines[i - 1].strip("\n") == "storage:"):
                     for line in lines[i:len(lines)]:
                         if line.strip("\n") == ":endStorage":
                             break
@@ -73,43 +94,49 @@ def readFile(path: str, isCode: bool):
             lines = file.readlines()
 
             for i in range(len(lines)):
-                if (i > 0) and (lines[i-1].strip("\n") == "code:"):
+                if (i > 0) and (lines[i - 1].strip("\n") == "code:"):
                     for line in lines[i:len(lines)]:
                         result.append(line.strip("\n"))
                     break
 
-    return result        
+    return result
 
+
+'''
 ################################
-#MIMA Interpreter Class
+# MIMA Interpreter Class
 ################################
+'''
+
+
 class MIMA:
-    def __init__(self, storageSize: int, bits: int):
-        self.storage = defineStorageSize(storageSize)
+    def __init__(self, storage_size: int, bits: int):
+        self.code = None
+        self.storage = define_storage_size(storage_size, bits)
         self.akku = "0"
         self.bits = bits
         self.tokens = []
         self.line = 0
 
-################################
-#Basic functions
-################################
-    def findByAdress(self, adress):
+    ################################
+    # Basic functions
+    ################################
+    def find_by_address(self, address):
         for i in self.storage:
-            if i[0] == adress:  
+            if i[0] == address:
                 return self.storage.index(i)
         return -1
 
-    def defineStorageName(self, adress, name: str):
-        index = self.findByAdress(adress)
+    def define_storage_name(self, address, name: str):
+        index = self.find_by_address(address)
         self.storage[index][0] = name
 
-    def writeToStorage(self, adress, value):
+    def write_to_storage(self, address, value):
         value = TwoComplement(self.bits, value)
-        index = self.findByAdress(adress)
+        index = self.find_by_address(address)
         self.storage[index][1] = value
 
-    def addNewStorageCell(self, name: str, value: str):
+    def add_new_storage_cell(self, name: str, value: str):
         self.storage.append([name, TwoComplement(self.bits, value)])
 
     def invert(self, value):
@@ -121,70 +148,74 @@ class MIMA:
                 inverted += "0"
         return inverted
 
-    def TwoComplementAddition(self, value: str):
-        toAdd = [char for char in self.akku]
-        valueList = [char for char in value]
-        newValue = ["0" for _ in range(self.bits)]
+    def two_complement_addition(self, value: str):
+        to_add = [char for char in self.akku]
+        value_list = [char for char in value]
+        new_value = ["0" for _ in range(self.bits)]
         i = self.bits - 1
         temp = "0"
-        
+
         while i >= 0:
-            if toAdd[i] == "0" and valueList[i] == "0":
-                newValue[i] = temp
+            if to_add[i] == "0" and value_list[i] == "0":
+                new_value[i] = temp
                 temp = "0"
 
-            elif toAdd[i] != valueList[i]:
+            elif to_add[i] != value_list[i]:
                 if temp == "0":
-                    newValue[i] = "1"
+                    new_value[i] = "1"
                 else:
-                    newValue[i] = "0"
+                    new_value[i] = "0"
 
-            elif toAdd[i] == "1" and valueList[i] == "1":
+            elif to_add[i] == "1" and value_list[i] == "1":
                 if temp == "0":
-                    newValue[i] = "0"
+                    new_value[i] = "0"
                     temp = "1"
                 else:
-                    newValue[i] = "1"
-            
+                    new_value[i] = "1"
+
             i -= 1
-        
+
         i = self.bits - 1
 
         while temp == "1":
-            if newValue[i] == "1":
-                newValue[i] = "0"
+            if new_value[i] == "1":
+                new_value[i] = "0"
             else:
-                newValue[i] = "1"
+                new_value[i] = "1"
                 temp = "0"
-            
+
             i -= 1
 
-        return "".join(newValue)
+        return "".join(new_value)
 
-################################
-#Code Interpretation
-################################
+    '''
+    ################################
+    # Code Interpretation
+    ################################
+    '''
+
     def compile(self, path):
         if not path.endswith(".mima"):
             raise InvalidFile
         else:
-            self.code = readFile(path, True)    
+            self.code = read_file(path, True)
 
             line = 0
-            runtimeStorage = []
+            runtime_storage = []
 
-            for codeSegment in self.code:
+            for code_segment in self.code:
                 line += 1
-                i = codeSegment.strip("\n").split(" ")
+                i = code_segment.strip("\n").split(" ")
 
-                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and (self.findByAdress(i[1]) != -1 or i[1] in runtimeStorage):
+                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and (
+                        self.find_by_address(i[1]) != -1 or i[1] in runtime_storage):
                     self.tokens.append((i[0], i[1]))
                 elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2:
-                    raise InvalidAdress(i[1], line)
+                    raise InvalidAddress(i[1], line)
                 elif i[0] in ["LDC", "STV", "JMN", "JMP"] and len(i) == 2:
-                    self.tokens.append((i[0], i[1])) 
+                    self.tokens.append((i[0], i[1]))
                     if i[0] == "STV":
-                        runtimeStorage.append(i[1])
+                        runtime_storage.append(i[1])
                 elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
                     self.tokens.append((i[0],))
                     if i[0] == "HALT":
@@ -202,55 +233,56 @@ class MIMA:
                 command(self.tokens[self.line][1])
             self.line += 1
 
+    '''
+    ################################
+    # Commands
+    ################################
+    '''
 
-################################
-#Commands
-################################
-    def ADD(self, adress):
-        self.akku = self.TwoComplementAddition(self.storage[self.findByAdress(adress)][1].value)
-    
+    def ADD(self, address):
+        self.akku = self.two_complement_addition(self.storage[self.find_by_address(address)][1].value)
+
     def LDC(self, const: str):
         self.akku = TwoComplement(self.bits, const).value
 
-    def LDV(self, adress):
-        if self.findByAdress(adress) != -1:
-            self.akku = self.storage[self.findByAdress(adress)][1].value
-        else:
-            raise InvalidAdress(adress, line)
+    def LDV(self, address):
+        self.akku = self.storage[self.find_by_address(address)][1].value
 
-    def STV(self, adress):
-        if self.findByAdress(adress) != -1:
-            self.writeToStorage(adress, self.akku)
+    def STV(self, address):
+        if self.find_by_address(address) != -1:
+            self.write_to_storage(address, self.akku)
         else:
-            self.addNewStorageCell(adress, self.akku)
+            self.add_new_storage_cell(address, self.akku)
 
-    def EQL(self, adress):
-        if (self.akku == self.storage[self.findByAdress(adress)][1].value):
+    def EQL(self, address):
+        if self.akku == self.storage[self.find_by_address(address)][1].value:
             self.akku = "1" * self.bits
         else:
             self.akku = "0" * self.bits
 
-    def AND(self, adress):
-        desiredValue = ("0" * (self.bits - 1)) + "1" 
-        if (self.akku == desiredValue and self.storage[self.findByAdress(adress)][1].value == self.akku):
-            self.akku = desiredValue
+    def AND(self, address):
+        desired_value = ("0" * (self.bits - 1)) + "1"
+        if self.akku == desired_value and self.storage[self.find_by_address(address)][1].value == self.akku:
+            self.akku = desired_value
         else:
             self.akku = "0" * self.bits
 
-    def OR(self, adress):
-        desiredValue = ("0" * (self.bits - 1)) + "1" 
-        if (self.akku == desiredValue or self.storage[self.findByAdress(adress)][1].value == desiredValue):
-            self.akku = desiredValue
+    def OR(self, address):
+        desired_value = ("0" * (self.bits - 1)) + "1"
+        if self.akku == desired_value or self.storage[self.find_by_address(address)][1].value == desired_value:
+            self.akku = desired_value
         else:
             self.akku = "0" * self.bits
 
-    def XOR(self, adress):
-        desiredValue = ("0" * (self.bits - 1)) + "1"
-        if (self.akku != self.storage[self.findByAdress(adress)][1].value) and (self.akku == desiredValue or self.storage[self.findByAdress(adress)][1].value == desiredValue):
-            self.akku = desiredValue
+    def XOR(self, address):
+        desired_value = ("0" * (self.bits - 1)) + "1"
+        if (self.akku != self.storage[self.find_by_address(address)][1].value) \
+                and (self.akku == desired_value
+                     or self.storage[self.find_by_address(address)][1].value == desired_value):
+            self.akku = desired_value
         else:
             self.akku = "0" * self.bits
-    
+
     def JMP(self, line):
         self.line = int(line) - 2
 
@@ -260,7 +292,7 @@ class MIMA:
 
     def NOT(self):
         self.akku = self.invert(self.akku)
-    
+
     def RAR(self):
         self.akku = "0" + self.akku[:-1]
 
@@ -268,27 +300,28 @@ class MIMA:
         output = ""
         for i in self.storage:
             output += (str(i[0]) + ": " + str(i[1].value) + "\n")
-        output += ("Akku: " + self.akku) + "\n" 
-        click.echo(output)   
+        output += ("Akku: " + self.akku) + "\n"
+        click.echo(output)
         exit()
 
+
 ################################
-#Run Program
+# Run Program
 ################################
 @click.command()
 @click.argument("path")
 @click.option("--bits", type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
 def main(path, bits):
-    predefined = readFile(path, False)
-    initialSize = len(predefined)
+    predefined = read_file(path, False)
+    initial_size = len(predefined)
 
-    mima = MIMA(initialSize, bits)
-   
-    for i in range(initialSize):
-           adressAti = predefined[i].split(":")[0].strip("(")
-           valueAti = predefined[i].split(":")[1].strip(")")
-           mima.defineStorageName(i, adressAti)
-           mima.writeToStorage(adressAti, valueAti)
+    mima = MIMA(initial_size, bits)
+
+    for i in range(initial_size):
+        address_ati = predefined[i].split(":")[0].strip("(")
+        value_ati = predefined[i].split(":")[1].strip(")")
+        mima.define_storage_name(i, address_ati)
+        mima.write_to_storage(address_ati, value_ati)
 
     try:
         mima.compile(path)
@@ -297,6 +330,7 @@ def main(path, bits):
         exit()
 
     mima.run()
+
 
 if __name__ == "__main__":
     main()
