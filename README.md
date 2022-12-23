@@ -1,5 +1,5 @@
 # Mima-Interpreter
-Simple Interpreter for the Minimal Machine
+Simple Interpreter for the Minimal Machine with debug mode and a couple of config options.
 ***
 ## How to write a Program
 * The entire code needs to be written in a text-file, which must have the extension ".mima"
@@ -37,9 +37,9 @@ Simple Interpreter for the Minimal Machine
 * The .config file is used to configure the Interpreter
 * The .config file needs to be in the same directory as the Mima.py file
 * The .config file needs to be named ".config" (basically just don't change the name of the file if you clone this repo)
-* The first line of the .config file specifies the Bit-Length of the Akkumulator and the Storage Cells (The default is 4 as that's the Bit-Length of the example program)
-* The second line of the .config file specifies the folder where the Interpreter will look for the .mima files (The default is None, which means the Interpreter will look in the mimaCode folder in the same directory as the Mima.py file)
-* The third line of the .config file specifies if you want to allow "circular overflow" during addition (The default is False, which means that "circular overflow" will not be allowed, i.e. overflow will be cut off at the Bit-Length of the Akkumulator)
+* The **first line** of the .config file specifies the Bit-Length of the Akkumulator and the Storage Cells (The default is 4 as that's the Bit-Length of the example program)
+* The **second line** of the .config file specifies the folder where the Interpreter will look for the .mima files (The default is None, which means the Interpreter will look in the mimaCode folder in the same directory as the Mima.py file)
+* The **third line** of the .config file specifies if you want to allow "circular overflow" during addition (The default is False, which means that "circular overflow" will not be allowed, i.e. overflow will be cut off at the Bit-Length of the Akkumulator)
 #### circular overflow means that if you add two numbers that are too big for the Akkumulator, the overflow will be added to the Akkumulator after the normal Addition
 #### (e.g. if you add 1111 and 0001 in a 4-Bit Akkumulator, you get 0000 with an overflow of 0001, this overflow will then be added to 0000 to get the final result of 0001)
 
