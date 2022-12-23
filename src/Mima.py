@@ -1,5 +1,8 @@
 import click
 
+__author__ = "Tim Wolk"
+__version__ = "1.0"
+
 '''
 ################################
 # Exceptions
