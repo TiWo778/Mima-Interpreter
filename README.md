@@ -16,6 +16,7 @@ Simple Interpreter for the Minimal Machine
 * You have to to write all storage cells directly after the *storage:* keyword and put the *:endStorage* keyword directly under your storage cells 
 
 ### <div align="center">(See example.mima for demonstration)</div>
+
 ---
 ## Overview of valid Commands
 * **LDC** *x* | loads the Number x into the Akkumulator
@@ -38,6 +39,10 @@ Simple Interpreter for the Minimal Machine
 * The .config file needs to be named ".config" (basically just don't change the name of the file if you clone this repo)
 * The first line of the .config file specifies the Bit-Length of the Akkumulator and the Storage Cells (The default is 4 as that's the Bit-Length of the example program)
 * The second line of the .config file specifies the folder where the Interpreter will look for the .mima files (The default is None, which means the Interpreter will look in the mimaCode folder in the same directory as the Mima.py file)
+* The third line of the .config file specifies if you want to allow "circular overflow" during addition (The default is False, which means that "circular overflow" will not be allowed, i.e. overflow will be cut off at the Bit-Length of the Akkumulator)
+#### circular overflow means that if you add two numbers that are too big for the Akkumulator, the overflow will be added to the Akkumulator after the normal Addition
+#### (e.g. if you add 1111 and 0001 in a 4-Bit Akkumulator, you get 0000 with an overflow of 0001, this overflow will then be added to 0000 to get the final result of 0001)
+
 ---
 ## How to execute your code
 * python 3.x has to be installed (see [Guide](https://realpython.com/installing-python/))
@@ -54,7 +59,7 @@ will run the specified .mima file (assuming you run the command from the folder 
 
 For example:
 ```
-python Mima.py ./myProgram.mima
+python Mima.py myProgram.mima
 ```
 will run *myProgram.mima*, which is stored in the same directory as *Mima.py*, interpreting all numbers as 16-Bit Two's Complement.
 
@@ -65,6 +70,10 @@ The command:
 python Mima.py *(Path to .mima file)* --d
 
 will run the specified file in debug mode.
+For example:
+```
+python Mima.py myProgram.mima --d
+```
 In debug mode, your code will be executed line by line, showing you:
 * the line number
 * the executed command (including parameters)

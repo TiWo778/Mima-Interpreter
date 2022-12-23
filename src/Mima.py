@@ -1,7 +1,7 @@
 import click
 
 __author__ = "Tim Wolk"
-__version__ = "1.1"
+__version__ = "1.2"
 
 '''
 ################################
@@ -113,13 +113,14 @@ def read_file(path: str, is_code: bool):
 
 
 class MIMA:
-    def __init__(self, storage_size: int, bits: int):
+    def __init__(self, storage_size: int, bits: int, overflow: bool):
         self.code = None
         self.storage = define_storage_size(storage_size, bits)
         self.akku = "0"
         self.bits = bits
         self.tokens = []
         self.line = 0
+        self.overflow = overflow
 
     ################################
     # Basic functions
@@ -178,16 +179,17 @@ class MIMA:
 
             i -= 1
 
-        i = self.bits - 1
+        if self.overflow:
+            i = self.bits - 1
 
-        while temp == "1":
-            if new_value[i] == "1":
-                new_value[i] = "0"
-            else:
-                new_value[i] = "1"
-                temp = "0"
+            while temp == "1":
+                if new_value[i] == "1":
+                    new_value[i] = "0"
+                else:
+                    new_value[i] = "1"
+                    temp = "0"
 
-            i -= 1
+                i -= 1
 
         return "".join(new_value)
 
@@ -336,6 +338,7 @@ def main(path, d):
         lines = config.readlines()
         bits = int(lines[0].strip("\n").split("=")[1])
         code_path = lines[1].strip("\n").split("=")[1]
+        overflow = eval(lines[2].strip("\n").split("=")[1])
 
     if code_path == "None":
         file_path = "./mimaCode/" + path
@@ -345,7 +348,7 @@ def main(path, d):
     predefined = read_file(file_path, False)
     initial_size = len(predefined)
 
-    mima = MIMA(initial_size, bits)
+    mima = MIMA(initial_size, bits, overflow)
 
     for i in range(initial_size):
         address_ati = predefined[i].split(":")[0].strip("(")
