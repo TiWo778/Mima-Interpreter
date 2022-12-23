@@ -1,7 +1,7 @@
 import click
 
 __author__ = "Tim Wolk"
-__version__ = "1.0"
+__version__ = "1.1"
 
 '''
 ################################
@@ -226,15 +226,30 @@ class MIMA:
                 else:
                     raise InvalidSyntax(line)
 
-    def run(self):
-        while self.line < len(self.tokens):
-            if len(self.tokens[self.line]) == 1:
-                command = getattr(self, self.tokens[self.line][0])
-                command()
-            elif len(self.tokens[self.line]) == 2:
-                command = getattr(self, self.tokens[self.line][0])
-                command(self.tokens[self.line][1])
-            self.line += 1
+    def run(self, debug: bool):
+            while self.line < len(self.tokens):
+                if len(self.tokens[self.line]) == 1:
+                    command = getattr(self, self.tokens[self.line][0])
+                    command()
+                elif len(self.tokens[self.line]) == 2:
+                    command = getattr(self, self.tokens[self.line][0])
+                    command(self.tokens[self.line][1])
+                self.line += 1
+
+                if debug:
+                    click.echo("Line: " + str(self.line))
+
+                    if len(self.tokens[self.line - 1]) > 1:
+                        command_str = self.tokens[self.line - 1][0] + " " + self.tokens[self.line - 1][1]
+                    else:
+                        command_str = self.tokens[self.line - 1][0]
+
+                    click.echo("Command: " + command_str)
+                    click.echo("Akku: " + self.akku)
+                    click.echo("Storage: ")
+                    for i in self.storage:
+                        click.echo(i[0] + ": " + i[1].value)
+                    input("")
 
     '''
     ################################
@@ -313,9 +328,21 @@ class MIMA:
 ################################
 @click.command()
 @click.argument("path")
-@click.option("--bits", type=int, required=True, help="The size of your Two's Complement values (amount of bits)")
-def main(path, bits):
-    predefined = read_file(path, False)
+@click.option("--d", is_flag=True, default=False, help="Runs your code in debug mode, meaning that the excecution will "
+                                                       "be paused after each line and the current state of the machine"
+                                                       " will be printed. To continue the execution, press enter.")
+def main(path, d):
+    with open(".config", "r") as config:
+        lines = config.readlines()
+        bits = int(lines[0].strip("\n").split("=")[1])
+        codePath = lines[1].strip("\n").split("=")[1]
+
+    if codePath == "None":
+        filePath = path
+    else:
+        filePath = codePath + path
+
+    predefined = read_file(filePath, False)
     initial_size = len(predefined)
 
     mima = MIMA(initial_size, bits)
@@ -327,12 +354,12 @@ def main(path, bits):
         mima.write_to_storage(address_ati, value_ati)
 
     try:
-        mima.compile(path)
+        mima.compile(filePath)
     except Exception as e:
         print(str(e))
         exit()
 
-    mima.run()
+    mima.run(d)
 
 
 if __name__ == "__main__":
