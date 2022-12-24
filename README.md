@@ -83,3 +83,6 @@ In debug mode, your code will be executed line by line, showing you:
 To continue to the next line just press *enter*.
 
 #### Note that the shown values are the values *after* the command has been executed.
+
+# Important: Currently the JMN and JMP commands are not neccessarily  working correctly, so if you use them, you might get unexpected results.
+# To avoid this, you have to specify the line number of the command including the *code:* keyword, but not any lines above it.
