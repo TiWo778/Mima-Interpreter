@@ -27,8 +27,8 @@ Simple Interpreter for the Minimal Machine with debug mode and a couple of confi
 * **AND** *a* | writes 1 into the Akkumulator if the Value in the Akkumulator and the Value at adress a both are 1, and 0 if not
 * **OR**  *a* | writes 1 into the Akkumulator if the Value in the Akkumulator or the Value at adress a, or both are 1, and 0 if not
 * **XOR** *a* | writes 1 into the Akkumulator if either the Value in the Akkumulator, or the Value at adress a, but not both, are 1, and 0 if not
-* **JMN** *y* | continues the code execution at the line y, if the Value in the Akkumulator is negative
-* **JMP** *y* | continues the code execution at the line y, regardless of the Value in the Akkumulator
+* **JMN** *y* | continues the code execution at the line labeled with y, if the Value in the Akkumulator is negative
+* **JMP** *y* | continues the code execution at the line labeled with y, regardless of the Value in the Akkumulator
 * **NOT** | negates the Two's Complement Value in the Akkumulator (every 1 turns into a 0 and vice versa)
 * **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right, filling with 0's (10011 --> 01001)
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
