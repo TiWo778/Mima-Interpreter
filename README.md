@@ -61,7 +61,7 @@ For example:
 ```
 python Mima.py myProgram.mima
 ```
-will run *myProgram.mima*, which is stored in the same directory as *Mima.py*, interpreting all numbers as 16-Bit Two's Complement.
+will run *myProgram.mima*, which is stored in the mimaCode folder in the same directory as *Mima.py*.
 
 
 ## How to use the debug mode
