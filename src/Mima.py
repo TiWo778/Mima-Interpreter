@@ -12,22 +12,42 @@ __version__ = "1.2"
 
 class InvalidSyntax(Exception):
     def __init__(self, line):
-        self.message = f"Invalid Syntax in line {line}"
+        self.message = f"Invalid Syntax in line *{line}* of your code"
+
+    def __str__(self):
+        return self.message
 
 
 class InvalidAddress(Exception):
     def __init__(self, address, line):
-        self.message = f"The address *{address}* does not exist (line: {line})"
+        self.message = f"The address *{address}* referenced at line *{line}* of your code does not exist"
+
+    def __str__(self):
+        return self.message
 
 
 class InvalidNumber(Exception):
     def __init__(self, number):
         self.message = f"The number *{number}* is not a valid"
 
+    def __str__(self):
+        return self.message
+
 
 class InvalidFile(Exception):
     def __init__(self, path):
         self.message = f"The file *{path}* does not exist"
+
+    def __str__(self):
+        return self.message
+
+
+class InvalidLabel(Exception):
+    def __init__(self, label, line):
+        self.message = f"The label *{label}*, referenced at line *{line}* of your code does not exist"
+
+    def __str__(self):
+        return self.message
 
 
 '''
@@ -100,6 +120,8 @@ def read_file(path: str, is_code: bool):
                 if (i > 0) and (lines[i - 1].strip("\n") == "code:"):
                     for line in lines[i:len(lines)]:
                         result.append(line.strip("\n"))
+                        if line.__contains__("HALT"):
+                            break
                     break
 
     return result
@@ -114,13 +136,15 @@ def read_file(path: str, is_code: bool):
 
 class MIMA:
     def __init__(self, storage_size: int, bits: int, overflow: bool):
-        self.code = None
+        self.jump_labels = {}
+        self.code = []
         self.storage = define_storage_size(storage_size, bits)
         self.akku = "0"
         self.bits = bits
         self.tokens = []
         self.line = 0
         self.overflow = overflow
+        self.valid_tokens = ["ADD", "LDV", "AND", "OR", "XOR", "EQL", "LDC", "STV", "JMN", "JMP", "NOT", "RAR", "HALT"]
 
     ################################
     # Basic functions
@@ -201,57 +225,80 @@ class MIMA:
 
     def compile(self, path):
         if not path.endswith(".mima"):
-            raise InvalidFile
+            raise InvalidFile(path)
         else:
             self.code = read_file(path, True)
 
+            jump_to = {}
             line = 0
             runtime_storage = []
 
             for code_segment in self.code:
+                if code_segment == "":
+                    continue
                 line += 1
                 i = code_segment.strip("\n").split(" ")
 
-                if i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2 and (
-                        self.find_by_address(i[1]) != -1 or i[1] in runtime_storage):
-                    self.tokens.append((i[0], i[1]))
-                elif i[0] in ["ADD", "LDV", "AND", "OR", "XOR", "EQL"] and len(i) == 2:
-                    raise InvalidAddress(i[1], line)
-                elif i[0] in ["LDC", "STV", "JMN", "JMP"] and len(i) == 2:
-                    self.tokens.append((i[0], i[1]))
-                    if i[0] == "STV":
-                        runtime_storage.append(i[1])
-                elif i[0] in ["NOT", "RAR", "HALT"] and len(i) == 1:
+                if i[0] in self.valid_tokens[0:10] and len(i) >= 2:
+                    if i[0] in self.valid_tokens[0:6] and (
+                            self.find_by_address(i[1]) != -1 or i[1] in runtime_storage):
+                        self.tokens.append((i[0], i[1]))
+
+                    elif i[0] in self.valid_tokens[0:6]:
+                        raise InvalidAddress(i[1], line)
+
+                    elif i[0] in self.valid_tokens[6:10]:
+                        self.tokens.append((i[0], i[1]))
+                        if i[0] == "STV":
+                            runtime_storage.append(i[1])
+                        elif i[0] in ["JMP", "JMN"]:
+                            jump_to[i[1]] = line
+
+                    if len(i) > 2 and i[2] != "":
+                        self.jump_labels[i[2]] = line - 1
+
+                elif i[0] in self.valid_tokens[10:] and len(i) >= 1:
                     self.tokens.append((i[0],))
+                    if len(i) > 1 and i[1] != "":
+                        self.jump_labels[i[1]] = line - 1
                     if i[0] == "HALT":
                         break
+
                 else:
                     raise InvalidSyntax(line)
 
+        for label in jump_to:
+            if label not in self.jump_labels:
+                raise InvalidLabel(label, jump_to[label])
+
     def run(self, debug: bool):
-            while self.line < len(self.tokens):
-                if len(self.tokens[self.line]) == 1:
-                    command = getattr(self, self.tokens[self.line][0])
-                    command()
-                elif len(self.tokens[self.line]) == 2:
+        while self.line < len(self.tokens):
+            if len(self.tokens[self.line]) == 1:
+                command = getattr(self, self.tokens[self.line][0])
+                command()
+                self.line += 1
+            elif len(self.tokens[self.line]) == 2:
+                if self.tokens[self.line][0] in ["JMP", "JMN"]:
+                    self.line = self.jump_labels[self.tokens[self.line][1]]
+                else:
                     command = getattr(self, self.tokens[self.line][0])
                     command(self.tokens[self.line][1])
-                self.line += 1
+                    self.line += 1
 
-                if debug:
-                    click.echo("Line: " + str(self.line))
+            if debug:
+                click.echo("Line: " + str(self.line))
 
-                    if len(self.tokens[self.line - 1]) > 1:
-                        command_str = self.tokens[self.line - 1][0] + " " + self.tokens[self.line - 1][1]
-                    else:
-                        command_str = self.tokens[self.line - 1][0]
+                if len(self.tokens[self.line - 1]) > 1:
+                    command_str = self.tokens[self.line - 1][0] + " " + self.tokens[self.line - 1][1]
+                else:
+                    command_str = self.tokens[self.line - 1][0]
 
-                    click.echo("Command: " + command_str)
-                    click.echo("Akku: " + self.akku)
-                    click.echo("Storage: ")
-                    for i in self.storage:
-                        click.echo(i[0] + ": " + i[1].value)
-                    input("")
+                click.echo("Command: " + command_str)
+                click.echo("Akku: " + self.akku)
+                click.echo("Storage: ")
+                for i in self.storage:
+                    click.echo(i[0] + ": " + i[1].value)
+                input("")
 
     '''
     ################################
@@ -359,7 +406,7 @@ def main(path, d):
     try:
         mima.compile(file_path)
     except Exception as e:
-        print(str(e))
+        click.echo("Error: " + str(e))
         exit()
 
     mima.run(d)

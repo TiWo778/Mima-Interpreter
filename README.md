@@ -32,6 +32,10 @@ Simple Interpreter for the Minimal Machine with debug mode and a couple of confi
 * **NOT** | negates the Two's Complement Value in the Akkumulator (every 1 turns into a 0 and vice versa)
 * **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right, filling with 0's (10011 --> 01001)
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
+
+#### all commads can be suffixed with a label, which will be used for jumping to that line.
+#### (e.g. **LDC** *10* **label**, **JMP** *label* will jump to the line with the **LDC** command)
+
 ---
 ## .config file guide
 * The .config file is used to configure the Interpreter
@@ -83,6 +87,3 @@ In debug mode, your code will be executed line by line, showing you:
 To continue to the next line just press *enter*.
 
 #### Note that the shown values are the values *after* the command has been executed.
-
-# Important: Currently the JMN and JMP commands are not neccessarily  working correctly, so if you use them, you might get unexpected results.
-# To avoid this, you have to specify the line number of the command including the *code:* keyword, but not any lines above it.
