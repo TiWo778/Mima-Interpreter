@@ -82,8 +82,8 @@ In debug mode, your code will be executed line by line, showing you:
 * the line number
 * the executed command (including parameters)
 * the current value in the Akkumulator
-* the current value in the **all** storage cells
+* the current value in **all** of the storage cells
 
-To continue to the next line just press *enter*.
+To continue to the next line just hit *enter*.
 
 #### Note that the shown values are the values *after* the command has been executed.
