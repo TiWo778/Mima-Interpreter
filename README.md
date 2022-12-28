@@ -33,7 +33,7 @@ Simple Interpreter for the Minimal Machine with debug mode and a couple of confi
 * **RAR** | rotates the Two's Complement Value in the Akkumulator one Bit to the right, filling with 0's (10011 --> 01001)
 * **HALT** | stops the execution of the program. **Every program has to end with this command!**
 
-#### all commads can be suffixed with a label, which will be used for jumping to that line.
+#### As of version 1.2, all commads can be suffixed with a label, which will be used for jumping to that line.
 #### (e.g. **LDC** *10* **label**, **JMP** *label* will jump to the line with the **LDC** command)
 
 ---
